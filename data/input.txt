@@ -1,0 +1,15 @@
+Once upon a time, a curious student wanted to learn about computers.
+The student studied numbers, language, science, and mathematics.
+A neural network learns patterns from examples.
+A language model predicts the next character in a sequence.
+It learns by comparing its prediction with the correct answer.
+Attention allows a model to examine earlier parts of the text.
+A transformer uses attention and feed forward neural networks.
+The model changes its parameters to reduce the training loss.
+Learning takes time, practice, and many examples.
+The student wrote a program using Python and NumPy.
+The program used matrices, vectors, and gradients.
+After many experiments, the student understood the model better.
+A small model can learn simple patterns from a small dataset.
+A larger dataset may help a language model learn more patterns.
+Every prediction is based on the context that came before it.
