@@ -5,6 +5,7 @@ from nanograd import Tensor
 from model import GPT, cross_entropy
 
 
+# Verify the autograd engine produces finite gradients on a simple matmul example.
 def test_gradients():
     a = Tensor([[1., 2.], [3., 4.]], True)
     b = Tensor([[2.], [1.]], True)
@@ -19,6 +20,7 @@ def test_gradients():
     print("PASS: gradient calculation")
 
 
+# Check that a tiny GPT model can run a forward pass, backward pass, and generation.
 def test_gpt():
     np.random.seed(7)
 
@@ -51,7 +53,22 @@ def test_gpt():
     print("PASS: GPT forward, backward, loss, generation")
 
 
+# A mismatched parameter list should fail fast instead of silently corrupting weights.
+def test_state_dict_mismatch():
+    model = GPT(vocab_size=10, context=4, dim=8, heads=2, layers=1)
+
+    bad_state = [np.zeros_like(p.data) for p in model.parameters()[:-1]]
+    try:
+        model.load_state_dict(bad_state)
+        raise AssertionError("Expected ValueError for mismatched parameter count")
+    except ValueError:
+        pass
+
+    print("PASS: state dict validation")
+
+
 if __name__ == "__main__":
     test_gradients()
     test_gpt()
+    test_state_dict_mismatch()
     print("All basic tests passed.")

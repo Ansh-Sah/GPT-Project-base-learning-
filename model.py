@@ -3,10 +3,12 @@ import numpy as np
 from nanograd import Tensor, softmax, log_softmax
 
 
+# Create a trainable parameter tensor with a small random initialization.
 def parameter(shape, scale=0.02):
     return Tensor(np.random.randn(*shape) * scale, True)
 
 
+# Dense layer: transforms each token vector with a learned weight matrix.
 class Linear:
     def __init__(self, input_dim, output_dim):
         self.w = parameter(
@@ -22,6 +24,7 @@ class Linear:
         return [self.w, self.b]
 
 
+# Lookup table that turns integer token ids into learned vectors.
 class Embedding:
     def __init__(self, count, dim):
         self.weight = parameter((count, dim))
@@ -33,6 +36,7 @@ class Embedding:
         return [self.weight]
 
 
+# Normalize each token embedding across its feature dimension.
 class LayerNorm:
     def __init__(self, dim):
         self.gamma = Tensor(np.ones(dim), True)
@@ -47,6 +51,7 @@ class LayerNorm:
         return [self.gamma, self.beta]
 
 
+# Self-attention block: each token can look at earlier tokens in the sequence.
 class Attention:
     def __init__(self, dim, heads):
         assert dim % heads == 0
@@ -95,6 +100,7 @@ class Attention:
         return self.qkv.parameters() + self.proj.parameters()
 
 
+# Feed-forward network used after each attention layer.
 class MLP:
     def __init__(self, dim):
         self.fc1 = Linear(dim, dim * 4)
@@ -107,6 +113,7 @@ class MLP:
         return self.fc1.parameters() + self.fc2.parameters()
 
 
+# One transformer block: attention + feed-forward with residual connections.
 class Block:
     def __init__(self, dim, heads):
         self.ln1 = LayerNorm(dim)
@@ -128,6 +135,7 @@ class Block:
         )
 
 
+# Minimal GPT-style language model that predicts the next token from context.
 class GPT:
     def __init__(
         self, vocab_size, context=24,
@@ -184,6 +192,7 @@ class GPT:
                 raise ValueError("Parameter shape mismatch")
             p.data[...] = value
 
+    # Autoregressively sample new ids from the model, one token at a time.
     def generate(
         self, ids, tokens=100,
         temperature=0.8, top_k=10
@@ -222,6 +231,7 @@ class GPT:
         return ids
 
 
+# Compute the average negative log-likelihood of the target tokens.
 def cross_entropy(logits, targets):
     batch, time, vocab = logits.shape
 

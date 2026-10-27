@@ -2,6 +2,7 @@
 import numpy as np
 
 
+# Minimal autograd implementation for scalar and matrix operations used by the model.
 def unbroadcast(grad, shape):
     while grad.ndim > len(shape):
         grad = grad.sum(axis=0)
@@ -11,6 +12,7 @@ def unbroadcast(grad, shape):
     return grad
 
 
+# Tensor stores numeric data and its backward graph for automatic differentiation.
 class Tensor:
     def __init__(self, data, requires_grad=False, children=()):
         self.data = np.asarray(data, dtype=np.float64)
@@ -192,6 +194,7 @@ class Tensor:
         out.backward_fn = backward
         return out
 
+    # Walk the computational graph in reverse and accumulate gradients.
     def backward(self):
         if self.data.size != 1:
             raise ValueError("backward() requires a scalar loss")
@@ -216,6 +219,7 @@ class Tensor:
         return float(self.data.item())
 
 
+# Stable softmax that keeps the same autograd behavior as the other Tensor ops.
 def softmax(x, axis=-1):
     shifted = x - Tensor(
         np.max(x.data, axis=axis, keepdims=True)
@@ -224,6 +228,7 @@ def softmax(x, axis=-1):
     return exp_x / exp_x.sum(axis=axis, keepdims=True)
 
 
+# Log-softmax is useful for cross-entropy because it avoids large numerical issues.
 def log_softmax(x, axis=-1):
     shifted = x - Tensor(
         np.max(x.data, axis=axis, keepdims=True)
